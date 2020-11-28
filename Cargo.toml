@@ -1,0 +1,13 @@
+[package]
+name = "storages"
+version = "0.0.0"
+authors = ["Tim Diekmann <tim.diekmann@3dvision.de>"]
+edition = "2018"
+description = "Storage backends for collections"
+repository = "https://github.com/TimDiekmann/storages"
+documentation = "https://docs.rs/storages"
+readme = "README.md"
+keywords = ["collections"]
+categories = ["memory-management", "no-std"]
+license = "MIT OR Apache-2.0"
+exclude = [".github/**"]
