@@ -3,7 +3,7 @@
 [![Docs main](https://img.shields.io/static/v1?label=docs&message=main&color=5479ab)](https://timdiekmann.github.io/storages/storages/index.html)
 [![Docs.rs](https://docs.rs/storages/badge.svg)](https://docs.rs/storages)
 [![Crates.io](https://img.shields.io/crates/v/storages)](https://crates.io/crates/storages)
-![Crates.io](https://img.shields.io/crates/l/storages)
+[![Crates.io](https://img.shields.io/crates/l/storages)](#license)
 
 Test environment for storage-based collection rather than allocator-based.
 
