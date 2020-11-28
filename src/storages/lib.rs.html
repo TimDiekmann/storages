@@ -4,17 +4,9 @@
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
-<span id="4">4</span>
-<span id="5">5</span>
-<span id="6">6</span>
-<span id="7">7</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_works</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">2</span> <span class="op">+</span> <span class="number">2</span>, <span class="number">4</span>);
-    }
-}
+<span class="attribute">#![<span class="ident">no_std</span>]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>, <span class="ident">external_doc</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span>(<span class="ident">include</span> <span class="op">=</span> <span class="string">&quot;../README.md&quot;</span>))]</span>
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "storages";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
