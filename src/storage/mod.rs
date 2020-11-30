@@ -1,7 +1,7 @@
 use core::mem;
 
 mod alloc;
-    mod array;
+mod array;
 
 pub use self::alloc::*;
 

@@ -1,6 +1,11 @@
 mod raw;
 
-use core::{alloc::Layout, mem::ManuallyDrop, ops::{Deref, DerefMut}, ptr};
+use core::{
+    alloc::Layout,
+    mem::ManuallyDrop,
+    ops::{Deref, DerefMut},
+    ptr,
+};
 
 use alloc::alloc::{handle_alloc_error, Global};
 
@@ -63,7 +68,7 @@ impl<S: UnmanagedStorage> Box<S::Item, S> {
 }
 
 impl<S: Storage> Box<S::Item, S> {
-    pub fn into_raw_box(b: Self) -> RawBox<S::Item, S>{
+    pub fn into_raw_box(b: Self) -> RawBox<S::Item, S> {
         let this = ManuallyDrop::new(b);
         unsafe { ptr::read(&this.raw) }
     }

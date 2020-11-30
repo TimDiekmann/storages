@@ -12,10 +12,7 @@ enum Init {
     Zeroed,
 }
 
-pub struct UnmanagedAllocatorStorage<T: ?Sized, A: AllocRef>(
-    Unique<T>,
-    PhantomData<*const A>,
-);
+pub struct UnmanagedAllocatorStorage<T: ?Sized, A: AllocRef>(Unique<T>, PhantomData<*const A>);
 
 pub struct AllocatorStorage<T: ?Sized, A: AllocRef>(UnmanagedAllocatorStorage<T, A>, A);
 

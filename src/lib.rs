@@ -11,7 +11,7 @@
     ptr_internals,
     maybe_uninit_extra,
     maybe_uninit_ref,
-    min_const_generics,
+    min_const_generics
 )]
 #![allow(incomplete_features)]
 
