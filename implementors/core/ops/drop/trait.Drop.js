@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["storages"] = [{"text":"impl&lt;T, S:&nbsp;Storage&gt; Drop for Box&lt;T, S&gt;","synthetic":false,"types":[]},{"text":"impl&lt;T, S:&nbsp;UnmanagedStorage&gt; Drop for Box&lt;T, S&gt;","synthetic":false,"types":[]},{"text":"impl&lt;T, A:&nbsp;AllocRef&gt; Drop for AllocatorStorage&lt;T, A&gt;","synthetic":false,"types":[]},{"text":"impl&lt;T, A:&nbsp;AllocRef&gt; Drop for AllocatorStorage&lt;[T], A&gt;","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["AllocatorStorage",""],["UnmanagedAllocatorStorage",""]],"trait":[["ContiguousStorage",""],["Storage",""],["UnmanagedStorage",""],["ValueStorage",""]]});

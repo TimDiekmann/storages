@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["storages"] = [{"text":"impl&lt;T, S&gt; !Sync for RawBox&lt;T, S&gt;","synthetic":true,"types":[]},{"text":"impl&lt;T, S&nbsp;=&nbsp;AllocatorStorage&lt;T, Global&gt;&gt; !Sync for Box&lt;T, S&gt;","synthetic":true,"types":[]},{"text":"impl&lt;T, A&gt; !Sync for UnmanagedAllocatorStorage&lt;T, A&gt;","synthetic":true,"types":[]},{"text":"impl&lt;T, A&gt; !Sync for AllocatorStorage&lt;T, A&gt;","synthetic":true,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
