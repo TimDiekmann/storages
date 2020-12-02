@@ -10,6 +10,13 @@ Test environment for storage-based collection rather than allocator-based.
 As this crate is designed for replacing allocators in collections if desired,
 it requires a nightly compiler.
 
+Contributing
+------------
+
+I'm currently changing pretty much everything to test different approaches.
+While pull requests are always welcome, it may be better to open an issue
+and make suggestions or post it at the [topic on internals.rust-lang.org](
+https://internals.rust-lang.org/t/is-custom-allocators-the-right-abstraction/13460). 
 
 License
 -------
