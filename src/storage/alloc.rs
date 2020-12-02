@@ -179,7 +179,7 @@ impl<T, A: AllocRef> ContiguousStorage for UnmanagedAllocatorStorage<[T], A> {
         unsafe { slice::from_raw_parts(ptr.cast().as_ptr(), ptr.len()) }
     }
 
-    fn as_slice_mut(&mut self) -> &mut [mem::MaybeUninit<Self::Item>] {
+    fn as_mut_slice(&mut self) -> &mut [mem::MaybeUninit<Self::Item>] {
         let ptr = NonNull::from(self.0);
         unsafe { slice::from_raw_parts_mut(ptr.cast().as_ptr(), ptr.len()) }
     }
@@ -190,8 +190,8 @@ impl<T, A: AllocRef> ContiguousStorage for AllocatorStorage<[T], A> {
         self.0.as_slice()
     }
 
-    fn as_slice_mut(&mut self) -> &mut [mem::MaybeUninit<Self::Item>] {
-        self.0.as_slice_mut()
+    fn as_mut_slice(&mut self) -> &mut [mem::MaybeUninit<Self::Item>] {
+        self.0.as_mut_slice()
     }
 }
 

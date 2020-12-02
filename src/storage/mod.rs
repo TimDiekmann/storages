@@ -23,5 +23,5 @@ pub trait ValueStorage: Storage {
 pub trait ContiguousStorage: Storage {
     fn as_slice(&self) -> &[mem::MaybeUninit<Self::Item>];
 
-    fn as_slice_mut(&mut self) -> &mut [mem::MaybeUninit<Self::Item>];
+    fn as_mut_slice(&mut self) -> &mut [mem::MaybeUninit<Self::Item>];
 }
