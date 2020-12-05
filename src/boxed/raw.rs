@@ -340,6 +340,35 @@ where
     }
 }
 
+impl<T: ?Sized, B> RawBox<T, B>
+where
+    B: Buffer<T>,
+{
+    /// Creates a raw box from the provided buffer.
+    ///
+    /// # Safety
+    ///
+    /// It is up to the caller to guarantee that the value really is in an initialized state.
+    /// Calling this when the content is not yet fully initialized causes immediate undefined
+    /// behavior.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use storages::boxed::RawBox;
+    ///
+    /// let values = unsafe { RawBox::from_buffer([0_u32; 3]) };
+    ///
+    /// assert_eq!(*values, [0, 0, 0]);
+    /// ```
+    pub unsafe fn from_buffer(buffer: B) -> Self {
+        Self {
+            buffer,
+            _marker: PhantomData,
+        }
+    }
+}
+
 #[allow(clippy::use_self)]
 impl<T, B> RawBox<mem::MaybeUninit<T>, B>
 where

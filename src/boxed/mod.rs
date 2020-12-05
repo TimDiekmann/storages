@@ -217,6 +217,35 @@ where
     }
 }
 
+impl<T: ?Sized, B, D> Box<T, B, D>
+where
+    B: Buffer<T, ExternalData = D>,
+{
+    /// Creates a box from the provided buffer.
+    ///
+    /// # Safety
+    ///
+    /// It is up to the caller to guarantee that the value really is in an initialized state.
+    /// Calling this when the content is not yet fully initialized causes immediate undefined
+    /// behavior.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use storages::boxed::Box;
+    ///
+    /// let values = unsafe { Box::from_buffer([0_u32; 3], ()) };
+    ///
+    /// assert_eq!(*values, [0, 0, 0]);
+    /// ```
+    pub unsafe fn from_buffer(buffer: B, data: D) -> Self {
+        Self {
+            raw: RawBox::from_buffer(buffer),
+            data,
+        }
+    }
+}
+
 /// Construction of boxed slices in a provided buffer.
 #[allow(clippy::use_self)]
 impl<T, B, D> Box<[T], B, D>
