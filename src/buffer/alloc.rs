@@ -66,6 +66,7 @@ impl<T, A: ?Sized + AllocRef> AllocatedBuffer<[T], A> {
         bytes / mem::size_of::<T>()
     }
 
+    #[allow(clippy::map_err_ignore)]
     fn allocate_slice(allocator: &A, len: usize, init: Init) -> Result<Self, AllocError> {
         let ptr = if mem::size_of::<T>() == 0 {
             NonNull::slice_from_raw_parts(NonNull::dangling(), 0)
