@@ -498,34 +498,12 @@
 <span id="495">495</span>
 <span id="496">496</span>
 <span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">core</span>::{
     <span class="ident">alloc</span>::<span class="ident">Layout</span>,
     <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
     <span class="ident">mem</span>::{<span class="self">self</span>},
-    <span class="ident">ops</span>::{<span class="ident">CoerceUnsized</span>, <span class="ident">Deref</span>, <span class="ident">DerefMut</span>},
+    <span class="ident">ops</span>::<span class="ident">CoerceUnsized</span>,
 };
 
 <span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">alloc</span>::{<span class="ident">handle_alloc_error</span>, <span class="ident">Global</span>};
@@ -537,8 +515,8 @@
 <span class="doccomment">/// `RawBox&lt;T, B&gt;` abstracts over a [`Buffer`], which holds values of `T`. As a buffer may need</span>
 <span class="doccomment">/// external data, every operation on `RawBox`, which communicates with the underlying buffer,</span>
 <span class="doccomment">/// requires the external data to be passed. For an [`AllocatedBuffer&lt;T, A&gt;`] this means, that</span>
-<span class="doccomment">/// `A` has to be passed as a reference. For this reason, `RawBox` only implements [`Deref`] and</span>
-<span class="doccomment">/// [`DerefMut`] when [`B::ExternalData`] is `()`.</span>
+<span class="doccomment">/// `A` has to be passed as a reference. When [`B::ExternalData`] is a zero-sized type, there</span>
+<span class="doccomment">/// is no reason not to use [`Box`] directly instead.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Note, that `RawBox` does **not** implement [`Drop`] so it must be cleaned up after usage.</span>
 <span class="doccomment">///</span>
@@ -578,14 +556,14 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// let values = unsafe {</span>
 <span class="doccomment">///     // Deferred initialization:</span>
-<span class="doccomment">///     values[0].as_mut_ptr().write(1);</span>
-<span class="doccomment">///     values[1].as_mut_ptr().write(2);</span>
-<span class="doccomment">///     values[2].as_mut_ptr().write(3);</span>
+<span class="doccomment">///     values.as_mut(&amp;())[0].as_mut_ptr().write(1);</span>
+<span class="doccomment">///     values.as_mut(&amp;())[1].as_mut_ptr().write(2);</span>
+<span class="doccomment">///     values.as_mut(&amp;())[2].as_mut_ptr().write(3);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     values.assume_init()</span>
 <span class="doccomment">/// };</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(*values, [1, 2, 3])</span>
+<span class="doccomment">/// assert_eq!(*values.as_ref(&amp;()), [1, 2, 3]);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawBox</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span> <span class="op">=</span> <span class="ident">AllocatedBuffer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -693,18 +671,18 @@
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// #![feature(allocator_api, maybe_uninit_extra)]</span>
+    <span class="doccomment">/// #![feature(allocator_api)]</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// use std::alloc::Global;</span>
     <span class="doccomment">/// use storages::boxed::RawBox;</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut values = RawBox::new_uninit_slice(3);</span>
+    <span class="doccomment">/// let mut values = RawBox::&lt;[u32]&gt;::new_uninit_slice(3);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let values = unsafe {</span>
     <span class="doccomment">///     // Deferred initialization:</span>
-    <span class="doccomment">///     values.as_mut(&amp;Global)[0].write(1);</span>
-    <span class="doccomment">///     values.as_mut(&amp;Global)[1].write(2);</span>
-    <span class="doccomment">///     values.as_mut(&amp;Global)[2].write(3);</span>
+    <span class="doccomment">///     values.as_mut(&amp;Global)[0].as_mut_ptr().write(1);</span>
+    <span class="doccomment">///     values.as_mut(&amp;Global)[1].as_mut_ptr().write(2);</span>
+    <span class="doccomment">///     values.as_mut(&amp;Global)[2].as_mut_ptr().write(3);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">///     values.assume_init()</span>
     <span class="doccomment">/// };</span>
@@ -731,7 +709,7 @@
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// #![feature(allocator_api, maybe_uninit_extra)]</span>
+    <span class="doccomment">/// #![feature(allocator_api)]</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// use std::alloc::Global;</span>
     <span class="doccomment">/// use storages::boxed::RawBox;</span>
@@ -791,7 +769,7 @@
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// #![feature(allocator_api, maybe_uninit_extra)]</span>
+    <span class="doccomment">/// #![feature(allocator_api)]</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// use std::alloc::System;</span>
     <span class="doccomment">/// use storages::{boxed::RawBox, buffer::AllocatedBuffer};</span>
@@ -801,7 +779,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let five = unsafe {</span>
     <span class="doccomment">///     // Deferred initialization:</span>
-    <span class="doccomment">///     five.as_mut(&amp;System).write(5);</span>
+    <span class="doccomment">///     five.as_mut(&amp;System).as_mut_ptr().write(5);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">///     five.assume_init()</span>
     <span class="doccomment">/// };</span>
@@ -842,14 +820,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let values = unsafe {</span>
     <span class="doccomment">///     // Deferred initialization:</span>
-    <span class="doccomment">///     values[0].as_mut_ptr().write(1);</span>
-    <span class="doccomment">///     values[1].as_mut_ptr().write(2);</span>
-    <span class="doccomment">///     values[2].as_mut_ptr().write(3);</span>
+    <span class="doccomment">///     values.as_mut(&amp;())[0].as_mut_ptr().write(1);</span>
+    <span class="doccomment">///     values.as_mut(&amp;())[1].as_mut_ptr().write(2);</span>
+    <span class="doccomment">///     values.as_mut(&amp;())[2].as_mut_ptr().write(3);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">///     values.assume_init()</span>
     <span class="doccomment">/// };</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(*values, [1, 2, 3]);</span>
+    <span class="doccomment">/// assert_eq!(*values.as_ref(&amp;()), [1, 2, 3]);</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_uninit_slice_in</span>(<span class="ident">buffer</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RawBox</span><span class="op">&lt;</span>[<span class="ident">mem</span>::<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>], <span class="ident">B</span><span class="op">&gt;</span>
@@ -882,7 +860,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let values = unsafe { RawBox::from_buffer([0_u32; 3]) };</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(*values, [0, 0, 0]);</span>
+    <span class="doccomment">/// assert_eq!(*values.as_ref(&amp;()), [0, 0, 0]);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_buffer</span>(<span class="ident">buffer</span>: <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
@@ -910,7 +888,7 @@
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// #![feature(allocator_api, maybe_uninit_extra, new_uninit)]</span>
+    <span class="doccomment">/// #![feature(allocator_api, new_uninit)]</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// use std::alloc::Global;</span>
     <span class="doccomment">/// use storages::boxed::RawBox;</span>
@@ -919,7 +897,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let five = unsafe {</span>
     <span class="doccomment">///     // Deferred initialization:</span>
-    <span class="doccomment">///     five.as_mut(&amp;Global).write(5);</span>
+    <span class="doccomment">///     five.as_mut(&amp;Global).as_mut_ptr().write(5);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">///     five.assume_init()</span>
     <span class="doccomment">/// };</span>
@@ -963,14 +941,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let values = unsafe {</span>
     <span class="doccomment">///     // Deferred initialization:</span>
-    <span class="doccomment">///     values[0].as_mut_ptr().write(1);</span>
-    <span class="doccomment">///     values[1].as_mut_ptr().write(2);</span>
-    <span class="doccomment">///     values[2].as_mut_ptr().write(3);</span>
+    <span class="doccomment">///     values.as_mut(&amp;())[0].as_mut_ptr().write(1);</span>
+    <span class="doccomment">///     values.as_mut(&amp;())[1].as_mut_ptr().write(2);</span>
+    <span class="doccomment">///     values.as_mut(&amp;())[2].as_mut_ptr().write(3);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">///     values.assume_init()</span>
     <span class="doccomment">/// };</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(*values, [1, 2, 3])</span>
+    <span class="doccomment">/// assert_eq!(*values.as_ref(&amp;()), [1, 2, 3]);</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">assume_init</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RawBox</span><span class="op">&lt;</span>[<span class="ident">T</span>], <span class="ident">B</span><span class="op">&gt;</span> {
@@ -978,28 +956,6 @@
             <span class="ident">buffer</span>: <span class="self">self</span>.<span class="ident">buffer</span>,
             <span class="ident">_marker</span>: <span class="ident">PhantomData</span>,
         }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">RawBox</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span>,
-    <span class="ident">B</span>: <span class="ident">Buffer</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">ExternalData</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-{
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
-
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Target</span> {
-        <span class="self">self</span>.<span class="ident">as_ref</span>(<span class="kw-2">&amp;</span>())
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">RawBox</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span>,
-    <span class="ident">B</span>: <span class="ident">Buffer</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">ExternalData</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-{
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">Target</span> {
-        <span class="self">self</span>.<span class="ident">as_mut</span>(<span class="kw-2">&amp;</span>())
     }
 }
 
