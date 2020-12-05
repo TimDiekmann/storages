@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Box",""],["RawBox",""]]});
+initSidebarItems({"struct":[["Box",""],["RawBox","A thin wrapper around a buffer."]]});

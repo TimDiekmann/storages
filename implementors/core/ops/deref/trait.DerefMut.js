@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["storages"] = [{"text":"impl&lt;S:&nbsp;ValueStorage&gt; DerefMut for Box&lt;S::Item, S&gt;","synthetic":false,"types":[]}];
+implementors["storages"] = [{"text":"impl&lt;T, B&gt; DerefMut for RawBox&lt;T, B&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: ?Sized,<br>&nbsp;&nbsp;&nbsp;&nbsp;B: Buffer&lt;T, ExternalData = ()&gt;,&nbsp;</span>","synthetic":false,"types":[]},{"text":"impl&lt;T, B, D&gt; DerefMut for Box&lt;T, B, D&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: ?Sized,<br>&nbsp;&nbsp;&nbsp;&nbsp;B: Buffer&lt;T, ExternalData = D&gt;,&nbsp;</span>","synthetic":false,"types":[]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

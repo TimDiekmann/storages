@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["AllocatedBuffer",""]],"trait":[["Buffer","Backend for collection types like `Box` and `Vec`."],["UnmanagedBuffer","A buffer, which uses an external resource"]]});

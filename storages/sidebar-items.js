@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["boxed",""],["storage",""]]});
+initSidebarItems({"mod":[["boxed",""],["buffer",""]]});
