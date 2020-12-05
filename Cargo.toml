@@ -1,6 +1,6 @@
 [package]
 name = "storages"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Tim Diekmann <tim.diekmann@3dvision.de>"]
 edition = "2018"
 description = "Storage backends for collections"
