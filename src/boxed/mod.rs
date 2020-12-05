@@ -11,7 +11,7 @@ use core::{
 };
 use mem::ManuallyDrop;
 
-pub struct Box<T, B = AllocatedBuffer<T>, D = Global>
+pub struct Box<T, B = AllocatedBuffer<T>, D = <B as Buffer<T>>::ExternalData>
 where
     T: ?Sized,
     B: Buffer<T, ExternalData = D>,
@@ -44,7 +44,7 @@ impl<T> Box<T> {
         }
     }
 
-    /// Constructs a new raw box with uninitialized contents.
+    /// Constructs a new box with uninitialized contents.
     ///
     /// # Examples
     ///
@@ -166,12 +166,12 @@ where
     /// #![feature(allocator_api)]
     ///
     /// use std::alloc::System;
-    /// use storages::{boxed::RawBox, buffer::AllocatedBuffer};
+    /// use storages::{boxed::Box, buffer::AllocatedBuffer};
     ///
     /// let buffer = AllocatedBuffer::new_in(&System)?;
-    /// let five = RawBox::new_in(5, buffer, &System);
+    /// let five = Box::new_in(5, buffer, System);
     ///
-    /// assert_eq!(*five.as_ref(&System), 5);
+    /// assert_eq!(*five, 5);
     /// # Ok::<(), core::alloc::AllocError>(())
     /// ```
     #[inline]
@@ -182,7 +182,7 @@ where
         }
     }
 
-    /// Constructs a new raw box with uninitialized contents in the provided buffer.
+    /// Constructs a new box with uninitialized contents in the provided buffer.
     ///
     /// # Examples
     ///
@@ -190,19 +190,19 @@ where
     /// #![feature(allocator_api, maybe_uninit_extra)]
     ///
     /// use std::alloc::System;
-    /// use storages::{boxed::RawBox, buffer::AllocatedBuffer};
+    /// use storages::{boxed::Box, buffer::AllocatedBuffer};
     ///
     /// let buffer = AllocatedBuffer::new_in(&System)?;
-    /// let mut five = RawBox::<u32, _>::new_uninit_in(buffer);
+    /// let mut five = Box::<u32, _>::new_uninit_in(buffer, System);
     ///
     /// let five = unsafe {
     ///     // Deferred initialization:
-    ///     five.as_mut(&System).write(5);
+    ///     five.as_mut_ptr().write(5);
     ///
     ///     five.assume_init()
     /// };
     ///
-    /// assert_eq!(*five.as_ref(&System), 5);
+    /// assert_eq!(*five, 5);
     /// # Ok::<(), core::alloc::AllocError>(())
     /// ```
     #[inline]
@@ -229,10 +229,10 @@ where
     ///
     /// ```
     /// use std::mem;
-    /// use storages::boxed::RawBox;
+    /// use storages::boxed::Box;
     ///
     /// let buffer = [mem::MaybeUninit::<u32>::uninit(); 3];
-    /// let mut values = RawBox::new_uninit_slice_in(buffer);
+    /// let mut values = Box::<[u32], _>::new_uninit_slice_in(buffer, ());
     ///
     /// let values = unsafe {
     ///     // Deferred initialization:
@@ -262,7 +262,7 @@ impl<T, B, D> Box<mem::MaybeUninit<T>, B, D>
 where
     B: Buffer<T, ExternalData = D> + Buffer<mem::MaybeUninit<T>, ExternalData = D>,
 {
-    /// Converts to `RawBox<T, B>`.
+    /// Converts to `Box<T, B>`.
     ///
     /// # Safety
     ///
@@ -275,20 +275,17 @@ where
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, maybe_uninit_extra, new_uninit)]
+    /// use storages::boxed::Box;
     ///
-    /// use std::alloc::Global;
-    /// use storages::boxed::RawBox;
-    ///
-    /// let mut five = RawBox::<u32>::new_uninit();
+    /// let mut five = Box::<u32>::new_uninit();
     ///
     /// let five = unsafe {
     ///     // Deferred initialization:
-    ///     five.as_mut(&Global).write(5);
+    ///     five.as_mut_ptr().write(5);
     ///
     ///     five.assume_init()
     /// };
-    /// assert_eq!(*five.as_ref(&Global), 5);
+    /// assert_eq!(*five, 5);
     /// ```
     #[inline]
     pub unsafe fn assume_init(self) -> Box<T, B, D> {
