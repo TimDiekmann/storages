@@ -30,7 +30,6 @@ jobs:
         with:
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
-          override: true
 
       - name: Install grcov
         uses: actions-rs/install@v0.1

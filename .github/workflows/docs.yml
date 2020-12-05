@@ -20,7 +20,6 @@ jobs:
         with:
           profile: minimal
           toolchain: nightly
-          override: true
 
       - name: Build documentation
         uses: actions-rs/cargo@v1

@@ -31,7 +31,6 @@ jobs:
         with:
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
-          override: true
 
       - name: Build
         uses: actions-rs/cargo@v1
