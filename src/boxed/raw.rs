@@ -2,7 +2,7 @@ use core::{
     alloc::Layout,
     marker::PhantomData,
     mem::{self},
-    ops::{CoerceUnsized, Deref, DerefMut},
+    ops::CoerceUnsized,
 };
 
 use alloc::alloc::{handle_alloc_error, Global};
@@ -14,8 +14,8 @@ use crate::buffer::{AllocatedBuffer, Buffer, UnmanagedBuffer};
 /// `RawBox<T, B>` abstracts over a [`Buffer`], which holds values of `T`. As a buffer may need
 /// external data, every operation on `RawBox`, which communicates with the underlying buffer,
 /// requires the external data to be passed. For an [`AllocatedBuffer<T, A>`] this means, that
-/// `A` has to be passed as a reference. For this reason, `RawBox` only implements [`Deref`] and
-/// [`DerefMut`] when [`B::ExternalData`] is `()`.
+/// `A` has to be passed as a reference. When [`B::ExternalData`] is a zero-sized type, there
+/// is no reason not to use [`Box`] directly instead.
 ///
 /// Note, that `RawBox` does **not** implement [`Drop`] so it must be cleaned up after usage.
 ///
@@ -55,14 +55,14 @@ use crate::buffer::{AllocatedBuffer, Buffer, UnmanagedBuffer};
 ///
 /// let values = unsafe {
 ///     // Deferred initialization:
-///     values[0].as_mut_ptr().write(1);
-///     values[1].as_mut_ptr().write(2);
-///     values[2].as_mut_ptr().write(3);
+///     values.as_mut(&())[0].as_mut_ptr().write(1);
+///     values.as_mut(&())[1].as_mut_ptr().write(2);
+///     values.as_mut(&())[2].as_mut_ptr().write(3);
 ///
 ///     values.assume_init()
 /// };
 ///
-/// assert_eq!(*values, [1, 2, 3])
+/// assert_eq!(*values.as_ref(&()), [1, 2, 3]);
 /// ```
 pub struct RawBox<T, B = AllocatedBuffer<T>>
 where
@@ -170,18 +170,18 @@ impl<T> RawBox<[T]> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, maybe_uninit_extra)]
+    /// #![feature(allocator_api)]
     ///
     /// use std::alloc::Global;
     /// use storages::boxed::RawBox;
     ///
-    /// let mut values = RawBox::new_uninit_slice(3);
+    /// let mut values = RawBox::<[u32]>::new_uninit_slice(3);
     ///
     /// let values = unsafe {
     ///     // Deferred initialization:
-    ///     values.as_mut(&Global)[0].write(1);
-    ///     values.as_mut(&Global)[1].write(2);
-    ///     values.as_mut(&Global)[2].write(3);
+    ///     values.as_mut(&Global)[0].as_mut_ptr().write(1);
+    ///     values.as_mut(&Global)[1].as_mut_ptr().write(2);
+    ///     values.as_mut(&Global)[2].as_mut_ptr().write(3);
     ///
     ///     values.assume_init()
     /// };
@@ -208,7 +208,7 @@ impl<T> RawBox<[T]> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, maybe_uninit_extra)]
+    /// #![feature(allocator_api)]
     ///
     /// use std::alloc::Global;
     /// use storages::boxed::RawBox;
@@ -268,7 +268,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, maybe_uninit_extra)]
+    /// #![feature(allocator_api)]
     ///
     /// use std::alloc::System;
     /// use storages::{boxed::RawBox, buffer::AllocatedBuffer};
@@ -278,7 +278,7 @@ where
     ///
     /// let five = unsafe {
     ///     // Deferred initialization:
-    ///     five.as_mut(&System).write(5);
+    ///     five.as_mut(&System).as_mut_ptr().write(5);
     ///
     ///     five.assume_init()
     /// };
@@ -319,14 +319,14 @@ where
     ///
     /// let values = unsafe {
     ///     // Deferred initialization:
-    ///     values[0].as_mut_ptr().write(1);
-    ///     values[1].as_mut_ptr().write(2);
-    ///     values[2].as_mut_ptr().write(3);
+    ///     values.as_mut(&())[0].as_mut_ptr().write(1);
+    ///     values.as_mut(&())[1].as_mut_ptr().write(2);
+    ///     values.as_mut(&())[2].as_mut_ptr().write(3);
     ///
     ///     values.assume_init()
     /// };
     ///
-    /// assert_eq!(*values, [1, 2, 3]);
+    /// assert_eq!(*values.as_ref(&()), [1, 2, 3]);
     /// ```
     #[inline]
     pub fn new_uninit_slice_in(buffer: B) -> RawBox<[mem::MaybeUninit<T>], B>
@@ -359,7 +359,7 @@ where
     ///
     /// let values = unsafe { RawBox::from_buffer([0_u32; 3]) };
     ///
-    /// assert_eq!(*values, [0, 0, 0]);
+    /// assert_eq!(*values.as_ref(&()), [0, 0, 0]);
     /// ```
     pub unsafe fn from_buffer(buffer: B) -> Self {
         Self {
@@ -387,7 +387,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, maybe_uninit_extra, new_uninit)]
+    /// #![feature(allocator_api, new_uninit)]
     ///
     /// use std::alloc::Global;
     /// use storages::boxed::RawBox;
@@ -396,7 +396,7 @@ where
     ///
     /// let five = unsafe {
     ///     // Deferred initialization:
-    ///     five.as_mut(&Global).write(5);
+    ///     five.as_mut(&Global).as_mut_ptr().write(5);
     ///
     ///     five.assume_init()
     /// };
@@ -440,14 +440,14 @@ where
     ///
     /// let values = unsafe {
     ///     // Deferred initialization:
-    ///     values[0].as_mut_ptr().write(1);
-    ///     values[1].as_mut_ptr().write(2);
-    ///     values[2].as_mut_ptr().write(3);
+    ///     values.as_mut(&())[0].as_mut_ptr().write(1);
+    ///     values.as_mut(&())[1].as_mut_ptr().write(2);
+    ///     values.as_mut(&())[2].as_mut_ptr().write(3);
     ///
     ///     values.assume_init()
     /// };
     ///
-    /// assert_eq!(*values, [1, 2, 3])
+    /// assert_eq!(*values.as_ref(&()), [1, 2, 3]);
     /// ```
     #[inline]
     pub unsafe fn assume_init(self) -> RawBox<[T], B> {
@@ -455,28 +455,6 @@ where
             buffer: self.buffer,
             _marker: PhantomData,
         }
-    }
-}
-
-impl<T, B> Deref for RawBox<T, B>
-where
-    T: ?Sized,
-    B: Buffer<T, ExternalData = ()>,
-{
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        self.as_ref(&())
-    }
-}
-
-impl<T, B> DerefMut for RawBox<T, B>
-where
-    T: ?Sized,
-    B: Buffer<T, ExternalData = ()>,
-{
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        self.as_mut(&())
     }
 }
 
