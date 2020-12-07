@@ -1,7 +1,7 @@
 use super::{Buffer, UnmanagedBuffer};
 use alloc::alloc::Global;
 use core::{
-    alloc::{AllocError, AllocRef, Layout},
+    alloc::{AllocError, Allocator, Layout},
     marker::{PhantomData, Unsize},
     mem,
     ops::CoerceUnsized,
@@ -41,12 +41,12 @@ impl<T> AllocatedBuffer<T> {
     }
 }
 
-impl<T, A: ?Sized + AllocRef> AllocatedBuffer<T, A> {
+impl<T, A: ?Sized + Allocator> AllocatedBuffer<T, A> {
     fn allocate_in(allocator: &A, init: Init) -> Result<Self, AllocError> {
         let layout = Layout::new::<T>();
         let ptr = match init {
-            Init::Unspecified => allocator.alloc(layout)?,
-            Init::Zeroed => allocator.alloc_zeroed(layout)?,
+            Init::Unspecified => allocator.allocate(layout)?,
+            Init::Zeroed => allocator.allocate_zeroed(layout)?,
         };
         unsafe { Ok(Self::from_raw(ptr.as_non_null_ptr().cast())) }
     }
@@ -60,7 +60,7 @@ impl<T, A: ?Sized + AllocRef> AllocatedBuffer<T, A> {
     }
 }
 
-impl<T, A: ?Sized + AllocRef> AllocatedBuffer<[T], A> {
+impl<T, A: ?Sized + Allocator> AllocatedBuffer<[T], A> {
     fn capacity_from_bytes(bytes: usize) -> usize {
         debug_assert_ne!(mem::size_of::<T>(), 0);
         bytes / mem::size_of::<T>()
@@ -74,8 +74,8 @@ impl<T, A: ?Sized + AllocRef> AllocatedBuffer<[T], A> {
             let layout = Layout::array::<T>(len).map_err(|_| AllocError)?;
             alloc_guard(layout.size()).map_err(|_| AllocError)?;
             let ptr = match init {
-                Init::Unspecified => allocator.alloc(layout)?,
-                Init::Zeroed => allocator.alloc_zeroed(layout)?,
+                Init::Unspecified => allocator.allocate(layout)?,
+                Init::Zeroed => allocator.allocate_zeroed(layout)?,
             };
 
             NonNull::slice_from_raw_parts(
@@ -95,7 +95,7 @@ impl<T, A: ?Sized + AllocRef> AllocatedBuffer<[T], A> {
     }
 }
 
-impl<T: ?Sized, A: ?Sized + AllocRef> Buffer<T> for AllocatedBuffer<T, A> {
+impl<T: ?Sized, A: ?Sized + Allocator> Buffer<T> for AllocatedBuffer<T, A> {
     type ExternalData = A;
 
     fn as_ptr(&self, _data: &Self::ExternalData) -> *const T {
@@ -107,7 +107,7 @@ impl<T: ?Sized, A: ?Sized + AllocRef> Buffer<T> for AllocatedBuffer<T, A> {
     }
 }
 
-impl<T, A: ?Sized + AllocRef> Buffer<mem::MaybeUninit<T>> for AllocatedBuffer<T, A> {
+impl<T, A: ?Sized + Allocator> Buffer<mem::MaybeUninit<T>> for AllocatedBuffer<T, A> {
     type ExternalData = A;
 
     fn as_ptr(&self, _data: &Self::ExternalData) -> *const mem::MaybeUninit<T> {
@@ -119,7 +119,7 @@ impl<T, A: ?Sized + AllocRef> Buffer<mem::MaybeUninit<T>> for AllocatedBuffer<T,
     }
 }
 
-impl<T, A: ?Sized + AllocRef> Buffer<[mem::MaybeUninit<T>]> for AllocatedBuffer<[T], A> {
+impl<T, A: ?Sized + Allocator> Buffer<[mem::MaybeUninit<T>]> for AllocatedBuffer<[T], A> {
     type ExternalData = A;
 
     fn as_ptr(&self, _data: &Self::ExternalData) -> *const [mem::MaybeUninit<T>] {
@@ -131,12 +131,12 @@ impl<T, A: ?Sized + AllocRef> Buffer<[mem::MaybeUninit<T>]> for AllocatedBuffer<
     }
 }
 
-impl<T: ?Sized, A: AllocRef> UnmanagedBuffer<T> for AllocatedBuffer<T, A> {
+impl<T: ?Sized, A: Allocator> UnmanagedBuffer<T> for AllocatedBuffer<T, A> {
     unsafe fn free_unchecked(&mut self, allocator: &Self::ExternalData) {
         let size = mem::size_of_val(self.ptr.as_ref());
         let align = mem::align_of_val(self.ptr.as_ref());
         let layout = Layout::from_size_align_unchecked(size, align);
-        allocator.dealloc(self.ptr.cast(), layout);
+        allocator.deallocate(self.ptr.cast(), layout);
     }
 }
 
@@ -149,7 +149,7 @@ const fn alloc_guard(alloc_size: usize) -> Result<(), AllocError> {
     }
 }
 
-impl<T: ?Sized + Unsize<U>, U: ?Sized, A: AllocRef> CoerceUnsized<AllocatedBuffer<U, A>>
+impl<T: ?Sized + Unsize<U>, U: ?Sized, A: Allocator> CoerceUnsized<AllocatedBuffer<U, A>>
     for AllocatedBuffer<T, A>
 {
 }
